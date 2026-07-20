@@ -68,7 +68,7 @@
 
           <div class="envelope" id="envelope" aria-hidden="true">
             <div class="envelope__back"></div>
-            <div class="envelope__note">
+            <div class="envelope__note" id="envelope-note">
               <span>Para Luiza</span>
               <small>com um amor nada secreto</small>
             </div>
@@ -115,11 +115,13 @@
           <div class="letter-cover" id="letter-cover">
             <div class="letter-cover__sheen" aria-hidden="true"></div>
             <div class="letter-cover__ornament" aria-hidden="true"></div>
-            <p>Para</p>
-            <h2 id="letter-title">Luiza</h2>
-            <span class="fine-rule" aria-hidden="true"></span>
-            <p class="letter-cover__tagline">Um novo capítulo está servido.</p>
-            <p class="letter-cover__edition">
+            <p class="cover-type" data-type-speed="42">Para</p>
+            <h2 id="letter-title" class="cover-type cover-type--title" data-type-speed="70">Luiza</h2>
+            <span class="fine-rule cover-rule" aria-hidden="true"></span>
+            <p class="letter-cover__tagline cover-type" data-type-speed="28">
+              Um novo capítulo está servido.
+            </p>
+            <p class="letter-cover__edition cover-type" data-type-speed="22">
               Jantar Secreto <span>·</span> Edição de colecionador
             </p>
 
@@ -138,40 +140,42 @@
           <article class="letter-paper" id="letter-paper" tabindex="-1" aria-label="Carta para Luiza">
             <div class="letter-paper__inner">
               <aside class="chapter-note">
-                <p class="chapter-note__label ink-line">Um capítulo nosso</p>
+                <p class="chapter-note__label typewrite" data-type-speed="30">Um capítulo nosso</p>
                 <blockquote>
-                  <p class="ink-line">
+                  <p class="typewrite" data-type-speed="36">
                     “Algumas histórias nos marcam<br />pelo que contam.
                   </p>
-                  <p class="ink-line">
+                  <p class="typewrite" data-type-speed="36">
                     Outras, por com quem tivemos<br />a sorte de vivê-las.”
                   </p>
                 </blockquote>
-                <span class="fine-rule ink-line" aria-hidden="true"></span>
-                <p class="chapter-note__caption ink-line">Nosso fim de semana no parque.</p>
+                <span class="fine-rule typewrite-rule" aria-hidden="true"></span>
+                <p class="chapter-note__caption typewrite" data-type-speed="32">
+                  Nosso fim de semana no parque.
+                </p>
               </aside>
 
               <div class="message">
-                <p class="message__salutation ink-line">Luiza,</p>
+                <p class="message__salutation typewrite" data-type-speed="55">Luiza,</p>
 
-                <p class="ink-line">
+                <p class="typewrite" data-type-speed="26">
                   Para mim, <cite>Jantar Secreto</cite> passou a guardar também a lembrança daquele
                   fim de semana no parque: nós dois, o tempo desacelerado, você me incentivando a
                   ler e dividindo comigo o entusiasmo por uma história que havia te conquistado.
                 </p>
 
-                <p class="ink-line">
+                <p class="typewrite" data-type-speed="26">
                   Obrigado por transformar um livro em uma memória tão bonita — e por fazer tantos
                   momentos simples se tornarem especiais.
                 </p>
 
-                <p class="ink-line">
+                <p class="typewrite" data-type-speed="26">
                   Quando você comentou, com aquele brilho tão seu, sobre esta edição, eu guardei o
                   detalhe. Porque amar também é prestar atenção ao que ilumina os olhos de quem a
                   gente ama.
                 </p>
 
-                <p class="ink-line">
+                <p class="typewrite" data-type-speed="26">
                   Esta edição já traz uma carta do autor e um capítulo a mais. Eu quis que trouxesse
                   também uma carta minha: para dizer o quanto admiro a mulher
                   <em>brilhante, sensível, curiosa, intensa e fascinante</em> que você é. Admiro a
@@ -179,28 +183,28 @@
                   dentro e fora dos livros.
                 </p>
 
-                <p class="ink-line">
+                <p class="typewrite" data-type-speed="26">
                   Que o capítulo inédito te surpreenda. E que a nossa história continue ganhando
                   páginas, parques, descobertas e muitos capítulos vividos lado a lado.
                 </p>
 
-                <p class="message__declaration ink-line">
+                <p class="message__declaration typewrite" data-type-speed="34">
                   Uma edição especial para uma mulher incomparável.
                 </p>
 
-                <div class="signature ink-line">
+                <div class="signature typewrite" data-type-speed="30">
                   <p>Com toda a minha admiração, gratidão e um amor nada secreto,</p>
                   <strong>Marcelino</strong>
                 </div>
 
-                <p class="postscript ink-line">
+                <p class="postscript typewrite" data-type-speed="28">
                   <strong>P.S.:</strong> O jantar está servido. O único risco, desta vez, é você
                   devorar o livro de uma vez.
                 </p>
               </div>
             </div>
 
-            <footer class="letter-paper__footer ink-line">
+            <footer class="letter-paper__footer typewrite" data-type-speed="30">
               <span aria-hidden="true">◆</span>
               <p>Com um amor nada secreto.</p>
               <span aria-hidden="true">◆</span>
@@ -208,7 +212,9 @@
           </article>
         </div>
 
-        <p class="closing-line">Uma história para guardar. Um novo capítulo para viver.</p>
+        <p class="closing-line" id="closing-line">
+          Uma história para guardar. Um novo capítulo para viver.
+        </p>
       </section>
     </main>
 
