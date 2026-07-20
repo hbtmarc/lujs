@@ -8,6 +8,7 @@
   const foldedLetter = document.querySelector("#folded-letter");
   const letterCover = document.querySelector("#letter-cover");
   const letterPaper = document.querySelector("#letter-paper");
+  const letterFooter = document.querySelector("#letter-footer");
   const openEnvelopeButton = document.querySelector("#open-envelope");
   const openLetterButton = document.querySelector("#open-letter");
   const restartButton = document.querySelector("#restart");
@@ -19,11 +20,9 @@
   let revealTimer;
   let restartTimer;
   let settleTimer;
-  let resizeTimer;
   let sequenceTimers = [];
   let typewriterToken = 0;
   let typeObserver;
-  let emberFrame;
   let embers = [];
   let preparedType = false;
 
@@ -124,7 +123,7 @@
       }
 
       ctx.shadowBlur = 0;
-      emberFrame = window.requestAnimationFrame(tick);
+      window.requestAnimationFrame(tick);
     }
 
     resize();
@@ -164,7 +163,7 @@
     openEnvelopeButton.addEventListener("pointerup", onLeave);
   }
 
-  /* —— Typewriter (letra a letra) —— */
+  /* —— Typewriter —— */
 
   function wrapCharacters(element) {
     if (element.dataset.typedPrepared === "true") return;
@@ -172,8 +171,12 @@
     const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT, {
       acceptNode(node) {
         if (!node.parentElement) return NodeFilter.FILTER_REJECT;
-        if (node.parentElement.closest("button")) return NodeFilter.FILTER_REJECT;
-        if (!node.nodeValue) return NodeFilter.FILTER_REJECT;
+        if (node.parentElement.closest("button, [aria-hidden='true']")) {
+          return NodeFilter.FILTER_REJECT;
+        }
+        if (!node.nodeValue || !node.nodeValue.trim()) {
+          return NodeFilter.FILTER_REJECT;
+        }
         return NodeFilter.FILTER_ACCEPT;
       },
     });
@@ -253,10 +256,7 @@
       else if (/[.!?…]/.test(value)) delay = baseSpeed * 3.4;
       else if (value === "—" || value === "–") delay = baseSpeed * 2.6;
 
-      // Batch tiny steps for smoothness without feeling blocky
-      if (i % 2 === 1 && !/[.!?…]/.test(value)) {
-        continue;
-      }
+      if (i % 2 === 1 && !/[.!?…]/.test(value)) continue;
 
       await wait(delay);
     }
@@ -282,6 +282,11 @@
     letterCover.classList.add("is-inscribed");
   }
 
+  function finishLetterChrome() {
+    letterFooter?.classList.add("is-shown");
+    closingLine?.classList.add("is-visible");
+  }
+
   function observeLetterTyping(token) {
     if (typeObserver) typeObserver.disconnect();
 
@@ -291,7 +296,7 @@
     if (reduceMotion) {
       blocks.forEach((block) => showAllChars(block));
       rule?.classList.add("is-drawn");
-      closingLine?.classList.add("is-visible");
+      finishLetterChrome();
       return;
     }
 
@@ -314,13 +319,13 @@
         }
 
         const top = el.getBoundingClientRect().top;
-        if (top > window.innerHeight * 0.65 || top < 72) {
+        if (top > window.innerHeight * 0.68 || top < 72) {
           el.scrollIntoView({ behavior: "smooth", block: "center" });
-          await wait(260);
+          await wait(240);
         }
 
         await typeElement(el, token);
-        await wait(110);
+        await wait(100);
       }
 
       running = false;
@@ -329,7 +334,7 @@
         token === typewriterToken &&
         blocks.every((block) => block.classList.contains("is-typed"))
       ) {
-        closingLine?.classList.add("is-visible");
+        finishLetterChrome();
       }
     };
 
@@ -358,7 +363,7 @@
         }
       });
       pump();
-    }, 180);
+    }, 200);
   }
 
   function resetTypewriters() {
@@ -376,33 +381,11 @@
 
     openLetterButton.classList.remove("is-ready");
     letterCover.classList.remove("is-inscribing", "is-inscribed");
+    letterFooter?.classList.remove("is-shown");
     closingLine?.classList.remove("is-visible");
   }
 
-  /* —— Paper measure —— */
-
-  function measurePaperHeight() {
-    letterPaper.style.height = "auto";
-    letterPaper.style.position = "absolute";
-    letterPaper.style.visibility = "hidden";
-    letterPaper.style.opacity = "0";
-    letterPaper.style.width = "100%";
-    letterPaper.style.pointerEvents = "none";
-
-    const height = letterPaper.scrollHeight;
-
-    letterPaper.style.height = "";
-    letterPaper.style.position = "";
-    letterPaper.style.visibility = "";
-    letterPaper.style.opacity = "";
-    letterPaper.style.width = "";
-    letterPaper.style.pointerEvents = "";
-
-    return height;
-  }
-
   function settlePaper() {
-    letterPaper.style.height = "auto";
     letterPaper.classList.add("is-settled");
     foldedLetter.classList.add("is-settled");
     letterCover.classList.add("is-stowed");
@@ -416,7 +399,6 @@
     foldedLetter.classList.remove("is-open", "is-settled", "is-drawing");
     letterPaper.classList.remove("is-settled");
     letterCover.classList.remove("is-stowed");
-    letterPaper.style.height = "";
     openLetterButton.setAttribute("aria-expanded", "false");
   }
 
@@ -426,11 +408,11 @@
     letterStage.hidden = false;
     letterStage.setAttribute("aria-hidden", "false");
     body.classList.add("is-letter-view");
-    body.classList.remove("is-blooming", "letter-extracting");
+    body.classList.remove("is-blooming", "letter-extracting", "is-reading");
 
     window.requestAnimationFrame(() => {
       letterStage.classList.add("is-visible");
-      window.scrollTo({ top: 0, behavior: reduceMotion ? "auto" : "smooth" });
+      window.scrollTo({ top: 0, left: 0, behavior: "auto" });
 
       const token = typewriterToken;
       typeCover(token).then(() => {
@@ -463,30 +445,25 @@
       return;
     }
 
-    // 1. Crack
     body.classList.add("seal-cracking");
     openingStatus.textContent = "O selo se parte.";
 
-    // 2. Break
     after(() => {
       body.classList.remove("seal-cracking");
       body.classList.add("seal-breaking");
     }, 300);
 
-    // 3. Flap opens
     after(() => {
       body.classList.add("envelope-opening");
       openingStatus.textContent = "A carta desliza para fora…";
     }, 580);
 
-    // 4. Letter slides out of the envelope
     after(() => {
       body.classList.add("letter-extracting");
       body.classList.add("is-blooming");
       openingStatus.textContent = "Um novo capítulo chega às suas mãos.";
     }, 1250);
 
-    // 5. Arrive at letter stage
     revealTimer = after(revealLetterStage, 2400);
   }
 
@@ -497,19 +474,15 @@
     window.clearTimeout(settleTimer);
     typewriterToken += 1;
 
-    const targetHeight = measurePaperHeight();
-
-    letterPaper.style.height = "0px";
-    void letterPaper.offsetHeight;
-
+    body.classList.add("is-reading");
     foldedLetter.classList.add("is-open", "is-drawing");
     openLetterButton.setAttribute("aria-expanded", "true");
-    letterPaper.style.height = `${targetHeight}px`;
 
     settleTimer = after(() => {
       settlePaper();
       letterPaper.focus({ preventScroll: true });
-    }, reduceMotion ? 0 : 1450);
+      letterPaper.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" });
+    }, reduceMotion ? 0 : 1300);
   }
 
   function restartExperience() {
@@ -523,6 +496,7 @@
     letterStage.classList.remove("is-visible");
     body.classList.remove(
       "is-letter-view",
+      "is-reading",
       "is-blooming",
       "seal-cracking",
       "seal-breaking",
@@ -544,23 +518,11 @@
     }, reduceMotion ? 0 : 80);
   }
 
-  function onResize() {
-    if (!foldedLetter.classList.contains("is-open") || !letterPaper.classList.contains("is-settled")) {
-      return;
-    }
-
-    window.clearTimeout(resizeTimer);
-    resizeTimer = window.setTimeout(() => {
-      letterPaper.style.height = "auto";
-    }, 120);
-  }
-
   /* —— Start —— */
 
   openEnvelopeButton.addEventListener("click", openEnvelope);
   openLetterButton.addEventListener("click", openLetter);
   restartButton.addEventListener("click", restartExperience);
-  window.addEventListener("resize", onResize, { passive: true });
 
   prepareAllTypewriters();
   bootExperience();

@@ -50,6 +50,19 @@ body.is-letter-view {
   min-height: 0;
 }
 
+body.is-letter-view:not(.is-reading) {
+  height: 100svh;
+  max-height: 100svh;
+  overflow: hidden;
+}
+
+body.is-letter-view.is-reading {
+  height: auto;
+  max-height: none;
+  overflow-x: clip;
+  overflow-y: auto;
+}
+
 body.is-blooming .light-sweep {
   animation: light-bloom 1.4s var(--ease-soft) both;
 }
@@ -810,11 +823,28 @@ body.letter-extracting .invitation__hint {
     max(1rem, env(safe-area-inset-top))
     var(--gutter)
     max(1.5rem, env(safe-area-inset-bottom));
+  overflow: clip;
 }
 
 .letter-stage.is-visible {
   display: block;
-  animation: stage-in 1.15s var(--ease-letter) both;
+  animation: stage-in 0.9s var(--ease-soft) both;
+}
+
+body.is-letter-view:not(.is-reading) .letter-stage.is-visible {
+  display: flex;
+  height: 100svh;
+  max-height: 100svh;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+body.is-letter-view:not(.is-reading) .letter-stage__topline {
+  flex: 0 0 auto;
+}
+
+body.is-letter-view:not(.is-reading) .closing-line {
+  display: none;
 }
 
 .letter-stage.is-visible .letter-stage__topline {
@@ -870,13 +900,15 @@ body.letter-extracting .invitation__hint {
   overflow: clip;
 }
 
-.folded-letter:not(.is-open) {
+body.is-letter-view:not(.is-reading) .folded-letter {
+  flex: 1 1 auto;
+  width: min(100%, 40rem);
   min-height: 0;
-  height: min(78svh, 38rem);
+  height: auto;
 }
 
-.letter-stage.is-visible .folded-letter:not(.is-open) {
-  animation: cover-arrive 1.15s 0.05s var(--ease-letter) both;
+.folded-letter:not(.is-open) .letter-cover {
+  animation: cover-fade 0.9s 0.05s var(--ease-soft) both;
 }
 
 .letter-cover {
@@ -884,7 +916,7 @@ body.letter-extracting .invitation__hint {
   z-index: 5;
   inset: 0;
   display: flex;
-  padding: clamp(1.75rem, 6vw, 3.5rem) 1.25rem 1.5rem;
+  padding: clamp(1.5rem, 5vw, 3rem) 1.25rem 1.4rem;
   align-items: center;
   flex-direction: column;
   border: 1px solid rgba(113, 75, 62, 0.16);
@@ -903,10 +935,10 @@ body.letter-extracting .invitation__hint {
   transform-origin: 50% 0;
   transform: rotateX(0deg);
   transition:
-    transform 1.35s var(--ease-letter),
-    opacity 0.6s 0.4s var(--ease-soft),
+    transform 1.2s var(--ease-letter),
+    opacity 0.5s 0.35s var(--ease-soft),
     box-shadow 0.8s ease,
-    visibility 0s 1.35s;
+    visibility 0s 1.2s;
   will-change: transform;
 }
 
@@ -991,10 +1023,12 @@ body.letter-extracting .invitation__hint {
 }
 
 .letter-cover__edition {
-  margin: 1.5rem 0 0;
+  margin: 1.35rem 0 0;
+  max-width: 16rem;
   color: #72625c;
   font-size: 0.55rem;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.11em;
+  line-height: 1.55;
   text-transform: uppercase;
 }
 
@@ -1080,7 +1114,8 @@ body.letter-extracting .invitation__hint {
 .letter-paper {
   position: relative;
   z-index: 2;
-  height: 0;
+  display: grid;
+  grid-template-rows: 0fr;
   border: 1px solid rgba(117, 77, 61, 0.14);
   border-radius: 0.12rem;
   background:
@@ -1091,15 +1126,21 @@ body.letter-extracting .invitation__hint {
   color: var(--ink);
   opacity: 0;
   overflow: hidden;
-  transform: translateY(1.4rem) scale(0.97);
+  transform: translateY(1rem);
   transition:
-    height 1.4s var(--ease-letter),
-    opacity 0.85s 0.1s var(--ease-soft),
-    transform 1.25s 0.05s var(--ease-letter),
+    grid-template-rows 1.25s var(--ease-letter),
+    opacity 0.75s 0.08s var(--ease-soft),
+    transform 1.1s var(--ease-letter),
     border-color 0.4s ease;
 }
 
+.letter-paper__clip {
+  min-height: 0;
+  overflow: hidden;
+}
+
 .folded-letter.is-open {
+  height: auto;
   min-height: 0;
   overflow: clip;
 }
@@ -1122,12 +1163,16 @@ body.letter-extracting .invitation__hint {
 }
 
 .folded-letter.is-open .letter-paper {
+  grid-template-rows: 1fr;
   opacity: 1;
-  transform: translateY(0) scale(1);
+  transform: translateY(0);
 }
 
 .folded-letter.is-open .letter-paper.is-settled {
-  height: auto;
+  overflow: visible;
+}
+
+.folded-letter.is-open .letter-paper.is-settled .letter-paper__clip {
   overflow: visible;
 }
 
@@ -1255,6 +1300,7 @@ body.letter-extracting .invitation__hint {
 
 .letter-paper__footer {
   display: flex;
+  flex: 0 0 auto;
   padding: 1.1rem 1rem;
   align-items: center;
   background: linear-gradient(180deg, #7c1a25, #5c1018);
@@ -1262,11 +1308,21 @@ body.letter-extracting .invitation__hint {
   gap: 0.75rem;
   justify-content: center;
   text-align: center;
+  opacity: 0;
+  transform: translateY(0.4rem);
+  transition: opacity 0.7s var(--ease-soft), transform 0.7s var(--ease-out);
+}
+
+.letter-paper__footer.is-shown {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .letter-paper__footer span {
+  flex: 0 0 auto;
   color: #c46368;
   font-size: 0.38rem;
+  line-height: 1;
 }
 
 .letter-paper__footer p {
@@ -1439,9 +1495,6 @@ body.letter-extracting .invitation__hint {
     max-height: none;
   }
 
-  .folded-letter:not(.is-open) {
-    height: 28rem;
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -1533,26 +1586,20 @@ body.letter-extracting .invitation__hint {
 @keyframes stage-in {
   from {
     opacity: 0;
-    transform: translateY(1.8rem) scale(0.985);
-    filter: blur(4px);
   }
 
   to {
     opacity: 1;
-    transform: translateY(0) scale(1);
-    filter: blur(0);
   }
 }
 
-@keyframes cover-arrive {
+@keyframes cover-fade {
   from {
     opacity: 0;
-    transform: translateY(2rem) rotateX(8deg);
   }
 
   to {
     opacity: 1;
-    transform: translateY(0) rotateX(0);
   }
 }
 
