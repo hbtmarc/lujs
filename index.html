@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <meta name="theme-color" content="#11090a" />
+    <meta name="theme-color" content="#0a0607" />
     <meta
       name="description"
       content="Um convite reservado e uma carta de Marcelino para Luiza."
@@ -15,6 +15,12 @@
     />
     <meta property="og:type" content="website" />
     <title>Para Luiza — Um novo capítulo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Outfit:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
     <link rel="stylesheet" href="./styles.css" />
     <script>
       document.documentElement.classList.replace("no-js", "js");
@@ -26,28 +32,49 @@
     <div class="atmosphere" aria-hidden="true">
       <span class="glow glow--one"></span>
       <span class="glow glow--two"></span>
+      <span class="glow glow--three"></span>
+      <span class="glow glow--candle"></span>
+      <canvas class="embers" id="embers"></canvas>
+      <span class="vignette"></span>
       <span class="grain"></span>
+      <span class="light-sweep" id="light-sweep"></span>
+    </div>
+
+    <div class="intro-veil" id="intro-veil" aria-hidden="true">
+      <p class="intro-veil__whisper">O jantar está servido</p>
+      <span class="intro-veil__rule"></span>
+      <p class="intro-veil__name">Para Luiza</p>
     </div>
 
     <main id="experiencia">
       <section class="invitation" id="convite" aria-labelledby="invitation-title">
-        <p class="kicker">Jantar Secreto <span aria-hidden="true">·</span> Edição de colecionador</p>
+        <p class="kicker reveal-item" data-reveal="1">
+          Jantar Secreto <span aria-hidden="true">·</span> Edição de colecionador
+        </p>
 
         <div class="invitation__heading">
-          <p>Convite reservado</p>
-          <h1 id="invitation-title">Para <em>Luiza</em></h1>
-          <span class="fine-rule" aria-hidden="true"></span>
-          <p class="invitation__tagline">Um novo capítulo está servido.</p>
+          <p class="reveal-item" data-reveal="2">Convite reservado</p>
+          <h1 id="invitation-title" class="reveal-item" data-reveal="3">
+            Para <em>Luiza</em>
+          </h1>
+          <span class="fine-rule reveal-item" data-reveal="4" aria-hidden="true"></span>
+          <p class="invitation__tagline reveal-item" data-reveal="5">
+            Um novo capítulo está servido.
+          </p>
         </div>
 
-        <div class="envelope-scene" aria-live="polite">
+        <div class="envelope-scene reveal-item" data-reveal="6" aria-live="polite">
+          <div class="envelope-scene__aura" aria-hidden="true"></div>
+
           <div class="envelope" id="envelope" aria-hidden="true">
             <div class="envelope__back"></div>
             <div class="envelope__note">
               <span>Para Luiza</span>
               <small>com um amor nada secreto</small>
             </div>
-            <div class="envelope__flap"></div>
+            <div class="envelope__flap">
+              <span class="envelope__flap-sheen"></span>
+            </div>
             <div class="envelope__front envelope__front--left"></div>
             <div class="envelope__front envelope__front--right"></div>
             <div class="envelope__front envelope__front--bottom"></div>
@@ -60,19 +87,25 @@
             aria-controls="carta"
             aria-expanded="false"
           >
-            <span class="wax-seal__face" aria-hidden="true">M</span>
+            <span class="wax-seal__ring" aria-hidden="true"></span>
+            <span class="wax-seal__ring wax-seal__ring--delay" aria-hidden="true"></span>
+            <span class="wax-seal__face" aria-hidden="true">
+              <span class="wax-seal__letter">M</span>
+              <span class="wax-seal__crack wax-seal__crack--one"></span>
+              <span class="wax-seal__crack wax-seal__crack--two"></span>
+            </span>
             <span class="wax-seal__label">Toque no selo</span>
           </button>
         </div>
 
-        <p class="invitation__hint" id="opening-status">
+        <p class="invitation__hint reveal-item" data-reveal="7" id="opening-status">
           Uma carta de Marcelino espera por você.
         </p>
 
-        <span class="scroll-cue" aria-hidden="true"></span>
+        <span class="scroll-cue reveal-item" data-reveal="8" aria-hidden="true"></span>
       </section>
 
-      <section class="letter-stage" id="carta" aria-labelledby="letter-title" hidden>
+      <section class="letter-stage" id="carta" aria-labelledby="letter-title" hidden aria-hidden="true">
         <div class="letter-stage__topline">
           <span>Convite reservado</span>
           <button class="text-button" id="restart" type="button">Voltar ao envelope</button>
@@ -80,12 +113,15 @@
 
         <div class="folded-letter" id="folded-letter">
           <div class="letter-cover" id="letter-cover">
+            <div class="letter-cover__sheen" aria-hidden="true"></div>
             <div class="letter-cover__ornament" aria-hidden="true"></div>
             <p>Para</p>
             <h2 id="letter-title">Luiza</h2>
             <span class="fine-rule" aria-hidden="true"></span>
             <p class="letter-cover__tagline">Um novo capítulo está servido.</p>
-            <p class="letter-cover__edition">Jantar Secreto <span>·</span> Edição de colecionador</p>
+            <p class="letter-cover__edition">
+              Jantar Secreto <span>·</span> Edição de colecionador
+            </p>
 
             <button
               class="open-letter"
@@ -95,43 +131,47 @@
               aria-expanded="false"
             >
               <span>Abrir a carta</span>
-              <span aria-hidden="true">→</span>
+              <span class="open-letter__arrow" aria-hidden="true">→</span>
             </button>
           </div>
 
           <article class="letter-paper" id="letter-paper" tabindex="-1" aria-label="Carta para Luiza">
             <div class="letter-paper__inner">
               <aside class="chapter-note">
-                <p class="chapter-note__label">Um capítulo nosso</p>
+                <p class="chapter-note__label ink-line">Um capítulo nosso</p>
                 <blockquote>
-                  <p>“Algumas histórias nos marcam<br />pelo que contam.</p>
-                  <p>Outras, por com quem tivemos<br />a sorte de vivê-las.”</p>
+                  <p class="ink-line">
+                    “Algumas histórias nos marcam<br />pelo que contam.
+                  </p>
+                  <p class="ink-line">
+                    Outras, por com quem tivemos<br />a sorte de vivê-las.”
+                  </p>
                 </blockquote>
-                <span class="fine-rule" aria-hidden="true"></span>
-                <p class="chapter-note__caption">Nosso fim de semana no parque.</p>
+                <span class="fine-rule ink-line" aria-hidden="true"></span>
+                <p class="chapter-note__caption ink-line">Nosso fim de semana no parque.</p>
               </aside>
 
               <div class="message">
-                <p class="message__salutation">Luiza,</p>
+                <p class="message__salutation ink-line">Luiza,</p>
 
-                <p>
+                <p class="ink-line">
                   Para mim, <cite>Jantar Secreto</cite> passou a guardar também a lembrança daquele
                   fim de semana no parque: nós dois, o tempo desacelerado, você me incentivando a
                   ler e dividindo comigo o entusiasmo por uma história que havia te conquistado.
                 </p>
 
-                <p>
+                <p class="ink-line">
                   Obrigado por transformar um livro em uma memória tão bonita — e por fazer tantos
                   momentos simples se tornarem especiais.
                 </p>
 
-                <p>
+                <p class="ink-line">
                   Quando você comentou, com aquele brilho tão seu, sobre esta edição, eu guardei o
                   detalhe. Porque amar também é prestar atenção ao que ilumina os olhos de quem a
                   gente ama.
                 </p>
 
-                <p>
+                <p class="ink-line">
                   Esta edição já traz uma carta do autor e um capítulo a mais. Eu quis que trouxesse
                   também uma carta minha: para dizer o quanto admiro a mulher
                   <em>brilhante, sensível, curiosa, intensa e fascinante</em> que você é. Admiro a
@@ -139,26 +179,28 @@
                   dentro e fora dos livros.
                 </p>
 
-                <p>
+                <p class="ink-line">
                   Que o capítulo inédito te surpreenda. E que a nossa história continue ganhando
                   páginas, parques, descobertas e muitos capítulos vividos lado a lado.
                 </p>
 
-                <p class="message__declaration">Uma edição especial para uma mulher incomparável.</p>
+                <p class="message__declaration ink-line">
+                  Uma edição especial para uma mulher incomparável.
+                </p>
 
-                <div class="signature">
+                <div class="signature ink-line">
                   <p>Com toda a minha admiração, gratidão e um amor nada secreto,</p>
                   <strong>Marcelino</strong>
                 </div>
 
-                <p class="postscript">
+                <p class="postscript ink-line">
                   <strong>P.S.:</strong> O jantar está servido. O único risco, desta vez, é você
                   devorar o livro de uma vez.
                 </p>
               </div>
             </div>
 
-            <footer class="letter-paper__footer">
+            <footer class="letter-paper__footer ink-line">
               <span aria-hidden="true">◆</span>
               <p>Com um amor nada secreto.</p>
               <span aria-hidden="true">◆</span>
@@ -172,7 +214,8 @@
 
     <noscript>
       <div class="noscript-message">
-        Ative o JavaScript para abrir o envelope. Esta experiência foi preparada especialmente para Luiza.
+        Ative o JavaScript para abrir o envelope. Esta experiência foi preparada especialmente para
+        Luiza.
       </div>
     </noscript>
   </body>
