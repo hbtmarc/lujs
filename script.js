@@ -13,21 +13,29 @@
   const openLetterButton = document.querySelector("#open-letter");
   const restartButton = document.querySelector("#restart");
   const openingStatus = document.querySelector("#opening-status");
-  const closingLine = document.querySelector("#closing-line");
+  const shareFrame = document.querySelector("#share-frame");
+  const shareLinkButton = document.querySelector("#share-link");
+  const copyLinkButton = document.querySelector("#copy-link");
   const embersCanvas = document.querySelector("#embers");
-  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-  let revealTimer;
-  let restartTimer;
-  let settleTimer;
+  const motionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+  let reduceMotion = motionQuery.matches;
+
+  let bootTimer = 0;
+  let revealTimer = 0;
+  let restartTimer = 0;
+  let settleTimer = 0;
   let sequenceTimers = [];
   let typewriterToken = 0;
-  let typeObserver;
+  let typeObserver = null;
   let embers = [];
   let preparedType = false;
+  let emberRaf = 0;
 
-  const after = (callback, delay) => {
-    const id = window.setTimeout(callback, reduceMotion ? 0 : delay);
+  const delay = (ms) => (reduceMotion ? Math.min(ms, 40) : ms);
+
+  const after = (callback, ms) => {
+    const id = window.setTimeout(callback, delay(ms));
     sequenceTimers.push(id);
     return id;
   };
@@ -42,29 +50,37 @@
     sequenceTimers = [];
   };
 
-  /* —— Intro —— */
+  /* —— Boot —— */
+
+  function finishBoot() {
+    introVeil?.classList.add("is-gone");
+    body.classList.remove("is-booting");
+    body.classList.add("is-ready");
+  }
 
   function bootExperience() {
     body.classList.add("is-booting");
+    body.classList.remove("is-ready");
+
+    window.clearTimeout(bootTimer);
 
     if (reduceMotion) {
-      introVeil?.classList.add("is-gone");
-      body.classList.remove("is-booting");
-      body.classList.add("is-ready");
+      finishBoot();
       return;
     }
 
-    after(() => {
-      introVeil?.classList.add("is-gone");
-      body.classList.remove("is-booting");
-      body.classList.add("is-ready");
-    }, 2400);
+    bootTimer = window.setTimeout(finishBoot, 2200);
+
+    // Fallback: nunca deixar a tela presa no véu
+    window.setTimeout(() => {
+      if (!body.classList.contains("is-ready")) finishBoot();
+    }, 4000);
   }
 
   /* —— Embers —— */
 
   function initEmbers() {
-    if (!embersCanvas || reduceMotion) return;
+    if (!embersCanvas) return;
 
     const ctx = embersCanvas.getContext("2d", { alpha: true });
     if (!ctx) return;
@@ -73,7 +89,7 @@
     let width = 0;
     let height = 0;
 
-    function resize() {
+    const resize = () => {
       width = window.innerWidth;
       height = window.innerHeight;
       embersCanvas.width = Math.floor(width * dpr);
@@ -81,69 +97,76 @@
       embersCanvas.style.width = `${width}px`;
       embersCanvas.style.height = `${height}px`;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    }
+    };
 
-    function spawn(count) {
+    const spawn = (count) => {
       for (let i = 0; i < count; i += 1) {
         embers.push({
           x: Math.random() * width,
-          y: height + Math.random() * height * 0.35,
-          r: 0.55 + Math.random() * 1.7,
-          vx: (Math.random() - 0.5) * 0.35,
-          vy: -0.35 - Math.random() * 0.85,
-          life: 0.4 + Math.random() * 0.6,
-          decay: 0.0015 + Math.random() * 0.0025,
-          hue: 12 + Math.random() * 28,
+          y: height * (0.55 + Math.random() * 0.5),
+          r: 0.5 + Math.random() * 1.6,
+          vx: (Math.random() - 0.5) * 0.3,
+          vy: -0.25 - Math.random() * 0.7,
+          life: 0.45 + Math.random() * 0.55,
+          decay: 0.0018 + Math.random() * 0.0022,
+          hue: 14 + Math.random() * 24,
         });
       }
-    }
+    };
 
-    function tick() {
+    const tick = () => {
+      if (reduceMotion || body.classList.contains("is-letter-view")) {
+        ctx.clearRect(0, 0, width, height);
+        emberRaf = window.requestAnimationFrame(tick);
+        return;
+      }
+
       ctx.clearRect(0, 0, width, height);
-      if (embers.length < 26) spawn(2);
+      if (embers.length < 22) spawn(2);
 
       for (let i = embers.length - 1; i >= 0; i -= 1) {
         const p = embers[i];
-        p.x += p.vx + Math.sin(p.y * 0.01) * 0.15;
+        p.x += p.vx + Math.sin(p.y * 0.012) * 0.12;
         p.y += p.vy;
         p.life -= p.decay;
 
-        if (p.life <= 0 || p.y < -10) {
+        if (p.life <= 0 || p.y < -12) {
           embers.splice(i, 1);
           continue;
         }
 
-        const alpha = Math.min(p.life, 0.7);
+        const alpha = Math.min(p.life, 0.65);
         ctx.beginPath();
         ctx.fillStyle = `hsla(${p.hue}, 78%, 62%, ${alpha})`;
-        ctx.shadowColor = `hsla(${p.hue}, 90%, 55%, ${alpha * 0.75})`;
-        ctx.shadowBlur = 8;
+        ctx.shadowColor = `hsla(${p.hue}, 90%, 55%, ${alpha * 0.7})`;
+        ctx.shadowBlur = 6;
         ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
         ctx.fill();
       }
 
       ctx.shadowBlur = 0;
-      window.requestAnimationFrame(tick);
-    }
+      emberRaf = window.requestAnimationFrame(tick);
+    };
 
     resize();
-    spawn(16);
+    if (!reduceMotion) spawn(14);
     tick();
     window.addEventListener("resize", resize, { passive: true });
   }
 
-  /* —— Magnetic seal —— */
+  /* —— Seal magnetism —— */
 
   function initSealMagnetism() {
-    if (reduceMotion || !openEnvelopeButton) return;
+    if (!openEnvelopeButton) return;
 
     const face = openEnvelopeButton.querySelector(".wax-seal__face");
     if (!face) return;
 
-    const maxTilt = 12;
+    const maxTilt = 10;
 
-    function onMove(event) {
-      if (body.classList.contains("envelope-opening") || openEnvelopeButton.disabled) return;
+    const onMove = (event) => {
+      if (reduceMotion || openEnvelopeButton.disabled) return;
+      if (body.classList.contains("envelope-opening")) return;
 
       const rect = face.getBoundingClientRect();
       const px = (event.clientX - rect.left) / rect.width - 0.5;
@@ -151,16 +174,16 @@
 
       root.style.setProperty("--seal-x", `${(-py * maxTilt).toFixed(2)}deg`);
       root.style.setProperty("--seal-y", `${(px * maxTilt).toFixed(2)}deg`);
-    }
+    };
 
-    function onLeave() {
+    const reset = () => {
       root.style.setProperty("--seal-x", "0deg");
       root.style.setProperty("--seal-y", "0deg");
-    }
+    };
 
     openEnvelopeButton.addEventListener("pointermove", onMove);
-    openEnvelopeButton.addEventListener("pointerleave", onLeave);
-    openEnvelopeButton.addEventListener("pointerup", onLeave);
+    openEnvelopeButton.addEventListener("pointerleave", reset);
+    openEnvelopeButton.addEventListener("pointercancel", reset);
   }
 
   /* —— Typewriter —— */
@@ -211,11 +234,7 @@
 
   function prepareAllTypewriters() {
     if (preparedType) return;
-
-    document.querySelectorAll(".typewrite, .cover-type").forEach((el) => {
-      wrapCharacters(el);
-    });
-
+    document.querySelectorAll(".typewrite, .cover-type").forEach(wrapCharacters);
     preparedType = true;
   }
 
@@ -224,6 +243,7 @@
       char.classList.add("is-shown");
     });
     element.classList.add("is-typed");
+    element.classList.remove("is-typing");
   }
 
   async function typeElement(element, token) {
@@ -245,20 +265,18 @@
     for (let i = 0; i < chars.length; i += 1) {
       if (token !== typewriterToken) return;
 
-      const char = chars[i];
-      char.classList.add("is-shown");
+      chars[i].classList.add("is-shown");
 
-      const value = char.textContent;
-      let delay = baseSpeed;
+      const value = chars[i].textContent;
+      let ms = baseSpeed;
 
-      if (char.classList.contains("tw-space")) delay = Math.max(8, baseSpeed * 0.35);
-      else if (/[,;:]/.test(value)) delay = baseSpeed * 2.2;
-      else if (/[.!?…]/.test(value)) delay = baseSpeed * 3.4;
-      else if (value === "—" || value === "–") delay = baseSpeed * 2.6;
+      if (chars[i].classList.contains("tw-space")) ms = Math.max(10, baseSpeed * 0.4);
+      else if (/[,;:]/.test(value)) ms = baseSpeed * 2;
+      else if (/[.!?…]/.test(value)) ms = baseSpeed * 3;
+      else if (value === "—" || value === "–") ms = baseSpeed * 2.4;
 
       if (i % 2 === 1 && !/[.!?…]/.test(value)) continue;
-
-      await wait(delay);
+      await wait(ms);
     }
 
     if (token !== typewriterToken) return;
@@ -268,23 +286,29 @@
 
   async function typeCover(token) {
     letterCover.classList.add("is-inscribing");
-    const parts = letterCover.querySelectorAll(".cover-type");
 
-    for (const part of parts) {
+    for (const part of letterCover.querySelectorAll(".cover-type")) {
       if (token !== typewriterToken) return;
       await typeElement(part, token);
-      await wait(90);
+      await wait(80);
     }
 
     letterCover.querySelector(".cover-rule")?.classList.add("is-drawn");
-    await wait(220);
+    await wait(180);
     openLetterButton.classList.add("is-ready");
     letterCover.classList.add("is-inscribed");
   }
 
   function finishLetterChrome() {
     letterFooter?.classList.add("is-shown");
-    closingLine?.classList.add("is-visible");
+    shareFrame?.classList.add("is-visible");
+
+    after(() => {
+      shareFrame?.scrollIntoView({
+        behavior: reduceMotion ? "auto" : "smooth",
+        block: "nearest",
+      });
+    }, 400);
   }
 
   function observeLetterTyping(token) {
@@ -294,7 +318,7 @@
     const rule = letterPaper.querySelector(".typewrite-rule");
 
     if (reduceMotion) {
-      blocks.forEach((block) => showAllChars(block));
+      blocks.forEach(showAllChars);
       rule?.classList.add("is-drawn");
       finishLetterChrome();
       return;
@@ -315,17 +339,17 @@
         if (!ruleDrawn && el.classList.contains("chapter-note__caption") && rule) {
           rule.classList.add("is-drawn");
           ruleDrawn = true;
-          await wait(180);
+          await wait(160);
         }
 
         const top = el.getBoundingClientRect().top;
-        if (top > window.innerHeight * 0.68 || top < 72) {
+        if (top > window.innerHeight * 0.7 || top < 64) {
           el.scrollIntoView({ behavior: "smooth", block: "center" });
-          await wait(240);
+          await wait(220);
         }
 
         await typeElement(el, token);
-        await wait(100);
+        await wait(90);
       }
 
       running = false;
@@ -349,21 +373,20 @@
           }
         });
       },
-      { root: null, rootMargin: "0px 0px -10% 0px", threshold: 0.18 }
+      { rootMargin: "0px 0px -8% 0px", threshold: 0.12 }
     );
 
     blocks.forEach((block) => typeObserver.observe(block));
 
     after(() => {
       blocks.forEach((block) => {
-        const rect = block.getBoundingClientRect();
-        if (rect.top < window.innerHeight * 0.85 && !block.classList.contains("is-typed")) {
+        if (block.getBoundingClientRect().top < window.innerHeight * 0.88) {
           typeObserver.unobserve(block);
           pending.push(block);
         }
       });
       pump();
-    }, 200);
+    }, 160);
   }
 
   function resetTypewriters() {
@@ -375,14 +398,14 @@
       el.querySelectorAll(".tw-char").forEach((char) => char.classList.remove("is-shown"));
     });
 
-    document.querySelectorAll(".typewrite-rule, .cover-rule").forEach((rule) => {
-      rule.classList.remove("is-drawn");
+    document.querySelectorAll(".typewrite-rule, .cover-rule").forEach((el) => {
+      el.classList.remove("is-drawn");
     });
 
     openLetterButton.classList.remove("is-ready");
     letterCover.classList.remove("is-inscribing", "is-inscribed");
     letterFooter?.classList.remove("is-shown");
-    closingLine?.classList.remove("is-visible");
+    shareFrame?.classList.remove("is-visible");
   }
 
   function settlePaper() {
@@ -395,7 +418,6 @@
   function resetPaper() {
     window.clearTimeout(settleTimer);
     resetTypewriters();
-
     foldedLetter.classList.remove("is-open", "is-settled", "is-drawing");
     letterPaper.classList.remove("is-settled");
     letterCover.classList.remove("is-stowed");
@@ -421,24 +443,20 @@
     });
   }
 
-  /* —— Envelope choreography —— */
+  /* —— Envelope —— */
 
   function openEnvelope() {
-    if (
-      body.classList.contains("envelope-opening") ||
-      body.classList.contains("seal-cracking") ||
-      body.classList.contains("seal-breaking") ||
-      body.classList.contains("letter-extracting")
-    ) {
-      return;
-    }
+    if (openEnvelopeButton.disabled) return;
+    if (body.classList.contains("envelope-opening")) return;
 
     openEnvelopeButton.disabled = true;
     openEnvelopeButton.setAttribute("aria-expanded", "true");
     openingStatus.textContent = "O selo cede…";
 
+    clearSequence();
+
     if (reduceMotion) {
-      body.classList.add("envelope-opening", "letter-extracting");
+      body.classList.add("seal-breaking", "envelope-opening", "letter-extracting");
       openingStatus.textContent = "O convite foi aberto.";
       openLetterButton.classList.add("is-ready");
       revealLetterStage();
@@ -451,25 +469,24 @@
     after(() => {
       body.classList.remove("seal-cracking");
       body.classList.add("seal-breaking");
-    }, 300);
+    }, 280);
 
     after(() => {
       body.classList.add("envelope-opening");
       openingStatus.textContent = "A carta desliza para fora…";
-    }, 580);
+    }, 560);
 
     after(() => {
-      body.classList.add("letter-extracting");
-      body.classList.add("is-blooming");
+      body.classList.add("letter-extracting", "is-blooming");
       openingStatus.textContent = "Um novo capítulo chega às suas mãos.";
-    }, 1250);
+    }, 1180);
 
-    revealTimer = after(revealLetterStage, 2400);
+    revealTimer = after(revealLetterStage, 2300);
   }
 
   function openLetter() {
     if (foldedLetter.classList.contains("is-open")) return;
-    if (!reduceMotion && !openLetterButton.classList.contains("is-ready")) return;
+    if (!openLetterButton.classList.contains("is-ready") && !reduceMotion) return;
 
     window.clearTimeout(settleTimer);
     typewriterToken += 1;
@@ -481,8 +498,11 @@
     settleTimer = after(() => {
       settlePaper();
       letterPaper.focus({ preventScroll: true });
-      letterPaper.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" });
-    }, reduceMotion ? 0 : 1300);
+      letterPaper.scrollIntoView({
+        behavior: reduceMotion ? "auto" : "smooth",
+        block: "start",
+      });
+    }, 1200);
   }
 
   function restartExperience() {
@@ -515,16 +535,90 @@
       openingStatus.textContent = "Uma carta de Marcelino espera por você.";
       window.scrollTo({ top: 0, behavior: reduceMotion ? "auto" : "smooth" });
       openEnvelopeButton.focus({ preventScroll: true });
-    }, reduceMotion ? 0 : 80);
+    }, 60);
+  }
+
+  function onMotionChange(event) {
+    reduceMotion = event.matches;
+  }
+
+  /* —— Share —— */
+
+  const SHARE_URL = "https://hbtmarc.github.io/lujs/";
+
+  function getShareUrl() {
+    return SHARE_URL;
+  }
+
+  function flashButton(button) {
+    if (!button) return;
+    button.classList.add("is-done");
+    after(() => button.classList.remove("is-done"), 1400);
+  }
+
+  async function copyShareLink() {
+    const url = getShareUrl();
+
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(url);
+      } else {
+        const input = document.createElement("input");
+        input.value = url;
+        input.setAttribute("readonly", "");
+        input.style.position = "fixed";
+        input.style.opacity = "0";
+        document.body.appendChild(input);
+        input.select();
+        document.execCommand("copy");
+        input.remove();
+      }
+
+      flashButton(copyLinkButton);
+      return true;
+    } catch (error) {
+      return false;
+    }
+  }
+
+  async function shareExperience() {
+    const url = getShareUrl();
+    const shareData = {
+      title: "Para Luiza — Um novo capítulo",
+      text: "Um convite reservado. O jantar está servido.",
+      url,
+    };
+
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData);
+        flashButton(shareLinkButton);
+        return;
+      } catch (error) {
+        if (error?.name === "AbortError") return;
+      }
+    }
+
+    const copied = await copyShareLink();
+    if (copied) flashButton(shareLinkButton);
   }
 
   /* —— Start —— */
 
-  openEnvelopeButton.addEventListener("click", openEnvelope);
-  openLetterButton.addEventListener("click", openLetter);
-  restartButton.addEventListener("click", restartExperience);
+  motionQuery.addEventListener?.("change", onMotionChange);
 
-  prepareAllTypewriters();
+  openEnvelopeButton?.addEventListener("click", openEnvelope);
+  openLetterButton?.addEventListener("click", openLetter);
+  restartButton?.addEventListener("click", restartExperience);
+  shareLinkButton?.addEventListener("click", shareExperience);
+  copyLinkButton?.addEventListener("click", copyShareLink);
+
+  try {
+    prepareAllTypewriters();
+  } catch (error) {
+    console.error(error);
+  }
+
   bootExperience();
   initEmbers();
   initSealMagnetism();

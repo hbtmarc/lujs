@@ -4,17 +4,39 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="theme-color" content="#0a0607" />
+    <meta name="color-scheme" content="dark" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Para Luiza" />
+    <meta name="format-detection" content="telephone=no" />
     <meta
       name="description"
-      content="Um convite reservado e uma carta de Marcelino para Luiza."
+      content="Um convite reservado de Marcelino para Luiza — Jantar Secreto, edição de colecionador. O jantar está servido."
     />
-    <meta property="og:title" content="Um novo capítulo para Luiza" />
+    <meta name="author" content="Marcelino" />
+    <meta property="og:locale" content="pt_BR" />
+    <meta property="og:site_name" content="Para Luiza" />
+    <meta property="og:title" content="Para Luiza — Um novo capítulo" />
     <meta
       property="og:description"
-      content="Um convite reservado. O jantar está servido."
+      content="Um convite reservado. Jantar Secreto · Edição de colecionador. O jantar está servido."
     />
     <meta property="og:type" content="website" />
+    <link rel="canonical" href="https://hbtmarc.github.io/lujs/" />
+    <meta property="og:url" content="https://hbtmarc.github.io/lujs/" />
+    <meta property="og:image" content="https://hbtmarc.github.io/lujs/assets/og-card.png" />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:alt" content="Para Luiza — Um novo capítulo está servido." />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Para Luiza — Um novo capítulo" />
+    <meta
+      name="twitter:description"
+      content="Um convite reservado. Jantar Secreto · Edição de colecionador."
+    />
+    <meta name="twitter:image" content="https://hbtmarc.github.io/lujs/assets/og-card.png" />
     <title>Para Luiza — Um novo capítulo</title>
+    <link rel="icon" href="./assets/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="./assets/og-share.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -24,6 +46,9 @@
     <link rel="stylesheet" href="./styles.css" />
     <script>
       document.documentElement.classList.replace("no-js", "js");
+      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        document.documentElement.classList.add("reduced-motion");
+      }
     </script>
     <script src="./script.js" defer></script>
   </head>
@@ -114,16 +139,20 @@
         <div class="folded-letter" id="folded-letter">
           <div class="letter-cover" id="letter-cover">
             <div class="letter-cover__sheen" aria-hidden="true"></div>
-            <div class="letter-cover__ornament" aria-hidden="true"></div>
-            <p class="cover-type" data-type-speed="42">Para</p>
-            <h2 id="letter-title" class="cover-type cover-type--title" data-type-speed="70">Luiza</h2>
-            <span class="fine-rule cover-rule" aria-hidden="true"></span>
-            <p class="letter-cover__tagline cover-type" data-type-speed="28">
-              Um novo capítulo está servido.
-            </p>
-            <p class="letter-cover__edition cover-type" data-type-speed="22">
-              Jantar Secreto <span>·</span> Edição de colecionador
-            </p>
+            <div class="letter-cover__body">
+              <div class="letter-cover__ornament" aria-hidden="true"></div>
+              <p class="letter-cover__eyebrow cover-type" data-type-speed="42">Para</p>
+              <h2 id="letter-title" class="cover-type cover-type--title" data-type-speed="70">
+                Luiza
+              </h2>
+              <span class="fine-rule cover-rule" aria-hidden="true"></span>
+              <p class="letter-cover__tagline cover-type" data-type-speed="28">
+                Um novo capítulo está servido.
+              </p>
+              <p class="letter-cover__edition cover-type" data-type-speed="22">
+                Jantar Secreto <span aria-hidden="true">·</span> Edição de colecionador
+              </p>
+            </div>
 
             <button
               class="open-letter"
@@ -141,13 +170,15 @@
             <div class="letter-paper__clip">
               <div class="letter-paper__inner">
                 <aside class="chapter-note">
-                  <p class="chapter-note__label typewrite" data-type-speed="30">Um capítulo nosso</p>
+                  <p class="chapter-note__label typewrite" data-type-speed="30">
+                    Um capítulo nosso
+                  </p>
                   <blockquote>
                     <p class="typewrite" data-type-speed="36">
-                      “Algumas histórias nos marcam<br />pelo que contam.
+                      “Algumas histórias nos marcam pelo que contam.
                     </p>
                     <p class="typewrite" data-type-speed="36">
-                      Outras, por com quem tivemos<br />a sorte de vivê-las.”
+                      Outras, por com quem tivemos a sorte de vivê-las.”
                     </p>
                   </blockquote>
                   <span class="fine-rule typewrite-rule" aria-hidden="true"></span>
@@ -180,8 +211,8 @@
                     Esta edição já traz uma carta do autor e um capítulo a mais. Eu quis que
                     trouxesse também uma carta minha: para dizer o quanto admiro a mulher
                     <em>brilhante, sensível, curiosa, intensa e fascinante</em> que você é. Admiro a
-                    paixão com que vive aquilo que ama e seu dom raro de me apresentar novos mundos
-                    — dentro e fora dos livros.
+                    paixão com que vive aquilo que ama e seu dom raro de me apresentar novos mundos —
+                    dentro e fora dos livros.
                   </p>
 
                   <p class="typewrite" data-type-speed="26">
@@ -199,7 +230,7 @@
                   </div>
 
                   <p class="postscript typewrite" data-type-speed="28">
-                    <strong>P.S.:</strong> O jantar está servido. O único risco, desta vez, é você
+                    <strong>P.S.</strong> O jantar está servido. O único risco, desta vez, é você
                     devorar o livro de uma vez.
                   </p>
                 </div>
@@ -214,9 +245,45 @@
           </article>
         </div>
 
-        <p class="closing-line" id="closing-line">
-          Uma história para guardar. Um novo capítulo para viver.
-        </p>
+        <aside class="share-frame" id="share-frame" aria-label="Compartilhar">
+          <p class="share-frame__edition">Jantar Secreto <span aria-hidden="true">·</span> Edição de colecionador</p>
+          <p class="share-frame__eyebrow">Para</p>
+          <p class="share-frame__name">Luiza</p>
+          <span class="fine-rule share-frame__rule" aria-hidden="true"></span>
+          <p class="share-frame__line">Uma história para guardar.</p>
+          <p class="share-frame__soft">Um novo capítulo para viver.</p>
+
+          <div class="share-actions">
+            <button
+              class="share-icon-btn"
+              id="share-link"
+              type="button"
+              title="Compartilhar"
+              aria-label="Compartilhar"
+            >
+              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <path
+                  d="M14 5v2h3.59L9.7 14.89l1.41 1.41L19 8.41V12h2V5h-7ZM5 7v12h12v-5h2v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h5v2H5Z"
+                  fill="currentColor"
+                />
+              </svg>
+            </button>
+            <button
+              class="share-icon-btn"
+              id="copy-link"
+              type="button"
+              title="Copiar link"
+              aria-label="Copiar link"
+            >
+              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <path
+                  d="M16 3H6a2 2 0 0 0-2 2v10h2V5h10V3Zm3 4H10a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2Zm0 14H10V9h9v12Z"
+                  fill="currentColor"
+                />
+              </svg>
+            </button>
+          </div>
+        </aside>
       </section>
     </main>
 
